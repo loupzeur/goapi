@@ -4,7 +4,7 @@ package models
 import (
 	"errors"
 	"fmt"
-	"goapi/utils"
+	"github.com/loupzeur/goapi/utils"
 	"net/http"
 	"net/url"
 	"os"

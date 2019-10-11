@@ -2,7 +2,7 @@ package goapi
 
 import (
 	"net/http"
-	"goapi/middlewares"
+	"github.com/loupzeur/goapi/middlewares"
 
 	"github.com/gorilla/mux"
 )

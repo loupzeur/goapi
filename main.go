@@ -4,8 +4,8 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"goapi/controllers"
-	"goapi/middlewares"
+	"github.com/loupzeur/goapi/controllers"
+	"github.com/loupzeur/goapi/middlewares"
 )
 
 //Usage exemple

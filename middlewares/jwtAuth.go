@@ -2,7 +2,7 @@ package middlewares
 
 import (
 	"context"
-	u "goapi/utils"
+	u "github.com/loupzeur/goapi/utils"
 	"net/http"
 	"os"
 	"strings"

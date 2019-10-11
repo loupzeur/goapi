@@ -1,7 +1,7 @@
 package models
 
 import (
-	"goapi/utils"
+	"github.com/loupzeur/goapi/utils"
 	"database/sql"
 	"os"
 	"strings"

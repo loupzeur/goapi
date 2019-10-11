@@ -1,4 +1,4 @@
-module goapi
+module github.com/loupzeur/goapi
 
 go 1.13
 

@@ -2,8 +2,8 @@ package controllers
 
 import (
 	"encoding/json"
-	"goapi/models"
-	u "goapi/utils"
+	"github.com/loupzeur/goapi/models"
+	u "github.com/loupzeur/goapi/utils"
 	"net/http"
 	"strconv"
 	"time"

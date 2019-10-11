@@ -2,8 +2,8 @@ package controllers
 
 import (
 	"fmt"
-	"goapi/models"
-	u "goapi/utils"
+	"github.com/loupzeur/goapi/models"
+	u "github.com/loupzeur/goapi/utils"
 	"log"
 	"net/http"
 	"os"
