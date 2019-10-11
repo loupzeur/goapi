@@ -25,11 +25,10 @@ var storage = s3.New(&s3.Config{AccessID: S3Access, AccessKey: S3Secret, Region:
 //RegisterS3Route Return routes for this controller
 func RegisterS3Route() u.Routes {
 	return u.Routes{
-		//		u.Route{"GetAllUser", "GET", "/api/image", GetAllUsers, uint32(u.ReadCompany)},
-		u.Route{"GetAllObject", "GET", "/api/object", GetAllObject, uint32(u.NoRight)},
-		u.Route{"GetObject", "GET", "/api/object/{id:[0-9]+}", GetObject, uint32(u.NoRight)},
-		u.Route{"PostObject", "POST", "/api/object", PostObject, uint32(u.EditObject)},
-		u.Route{"DeleteObject", "DELETE", "/api/object/{id:[0-9]+}", GetObject, uint32(u.EditObject)},
+		u.Route{"GetAllObject", "GET", "/api/object", GetAllObject},
+		u.Route{"GetObject", "GET", "/api/object/{id:[0-9]+}", GetObject},
+		u.Route{"PostObject", "POST", "/api/object", PostObject},
+		u.Route{"DeleteObject", "DELETE", "/api/object/{id:[0-9]+}", GetObject},
 	}
 }
 

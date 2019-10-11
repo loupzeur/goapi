@@ -48,14 +48,7 @@ func init() {
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Println(dbURI)
 	db = conn
-	//db.SingularTable(true)
-	db.Debug().AutoMigrate(
-		&User{},
-		&Object{},
-	)
-	db.Model(&User{}).ModifyColumn("reset_password_token", "varchar(64)")
 }
 
 //GetDB returns a handle to the DB object
@@ -65,32 +58,32 @@ func GetDB() *gorm.DB {
 
 //CrudRoutes Generate default CRUD route for object
 func CrudRoutes(models Validation, new Validation,
-	freq func(r *http.Request, req *gorm.DB) *gorm.DB, getallrights utils.RightBits,
-	getfunc func(r *http.Request, data interface{}) bool, getrights utils.RightBits,
-	crefunc func(r *http.Request, data interface{}) bool, crerights utils.RightBits,
-	updfunc func(r *http.Request, data interface{}, data2 interface{}) bool, updrights utils.RightBits,
-	delfunc func(r *http.Request, data interface{}) bool, delrights utils.RightBits) utils.Routes {
+	freq func(r *http.Request, req *gorm.DB) *gorm.DB,
+	getfunc func(r *http.Request, data interface{}) bool,
+	crefunc func(r *http.Request, data interface{}) bool,
+	updfunc func(r *http.Request, data interface{}, data2 interface{}) bool,
+	delfunc func(r *http.Request, data interface{}) bool) utils.Routes {
 	return utils.Routes{
 		utils.Route{"GetAll" + strings.Title(models.TableName()), "GET", "/api/" + models.TableName(),
 			func(w http.ResponseWriter, r *http.Request) {
 				GenericGetQueryAll(w, r, models, freq)
-			}, uint32(getallrights)},
+			}},
 		utils.Route{"Get" + strings.Title(models.TableName()), "GET", "/api/" + models.TableName() + "/{id:[0-9]+}",
 			func(w http.ResponseWriter, r *http.Request) {
 				GenericGet(w, r, models, getfunc)
-			}, uint32(getrights)},
+			}},
 		utils.Route{"Create" + strings.Title(models.TableName()), "POST", "/api/" + models.TableName(),
 			func(w http.ResponseWriter, r *http.Request) {
 				GenericCreate(w, r, models, crefunc)
-			}, uint32(crerights)},
+			}},
 		utils.Route{"Update" + strings.Title(models.TableName()), "PUT", "/api/" + models.TableName() + "/{id:[0-9]+}",
 			func(w http.ResponseWriter, r *http.Request) {
 				GenericUpdate(w, r, models, new, updfunc)
-			}, uint32(updrights)},
+			}},
 		utils.Route{"Delete" + strings.Title(models.TableName()), "DELETE", "/api/" + models.TableName() + "/{id:[0-9]+}",
 			func(w http.ResponseWriter, r *http.Request) {
 				GenericDelete(w, r, models, delfunc)
-			}, uint32(delrights)},
+			}},
 	}
 }
 

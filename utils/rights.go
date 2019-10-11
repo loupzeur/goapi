@@ -30,7 +30,6 @@ const (
 	CreateObject
 	EditObject
 	DeleteObject
-	ReadNotification
 	NotDefined
 )
 

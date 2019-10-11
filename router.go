@@ -1,19 +1,14 @@
 package goapi
 
 import (
-	"goapi/controllers"
-	"goapi/middlewares"
 	"net/http"
+	"goapi/middlewares"
 
 	"github.com/gorilla/mux"
 )
 
 //NewRouter set router and activate required handlers
 func NewRouter() *mux.Router {
-
-	middlewares.Routes = controllers.RegisterUserRoute().
-		Append(controllers.RegisterS3Route()).
-		Append(controllers.RegisterUtilsRoute())
 
 	router := mux.NewRouter().StrictSlash(true)
 	router.Use(middlewares.JwtAuthentication)

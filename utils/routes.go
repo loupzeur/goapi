@@ -10,7 +10,6 @@ type Route struct {
 	Method        string
 	Pattern       string
 	HandlerFunc   http.HandlerFunc
-	Authorization uint32
 }
 
 //Routes an array of route

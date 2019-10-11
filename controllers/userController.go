@@ -2,11 +2,9 @@ package controllers
 
 import (
 	"encoding/json"
-	"fmt"
 	"goapi/models"
 	u "goapi/utils"
 	"net/http"
-	"os"
 	"strconv"
 	"time"
 
@@ -16,17 +14,17 @@ import (
 //RegisterUserRoute Return routes for this controller
 func RegisterUserRoute() u.Routes {
 	return u.Routes{
-		u.Route{"GetAllUser", "GET", "/api/user", GetAllUsers, uint32(u.NotDefined)},
-		u.Route{"GetUser", "GET", "/api/user/{id:[0-9]+}", GetUser, uint32(u.EditUser)},
-		u.Route{"CreateUser", "POST", "/api/user", CreateUser, uint32(u.CreateUser)},
-		u.Route{"UpdateUser", "PUT", "/api/user/{id:[0-9]+}", UpdateUser, uint32(u.EditUser)},
-		u.Route{"UpdateUserToken", "PUT", "/api/user/{id:[0-9]+}/token/{token}", UpdateUser, uint32(u.NoRight)},
-		u.Route{"DeleteUser", "DELETE", "/api/user/{id:[0-9]+}", DeleteUser, uint32(u.DeleteUser)},
+		u.Route{"GetAllUser", "GET", "/api/user", GetAllUsers},
+		u.Route{"GetUser", "GET", "/api/user/{id:[0-9]+}", GetUser},
+		u.Route{"CreateUser", "POST", "/api/user", CreateUser},
+		u.Route{"UpdateUser", "PUT", "/api/user/{id:[0-9]+}", UpdateUser},
+		u.Route{"UpdateUserToken", "PUT", "/api/user/{id:[0-9]+}/token/{token}", UpdateUser},
+		u.Route{"DeleteUser", "DELETE", "/api/user/{id:[0-9]+}", DeleteUser},
 		//Secondary
-		u.Route{"AuthenticateUser", "POST", "/api/user/authenticate", AuthenticateUser, uint32(u.NoRight)},
-		u.Route{"RefreshUser", "GET", "/api/user/refresh", RefreshUser, uint32(u.EditUser)},
-		u.Route{"ValidateUser", "GET", "/api/user/{id:[0-9]+}/validate", ValidateUser, uint32(u.ValidateUser)},
-		u.Route{"ResetUser", "POST", "/api/user/{email}/reset", ResetUser, uint32(u.NoRight)},
+		u.Route{"AuthenticateUser", "POST", "/api/user/authenticate", AuthenticateUser},
+		u.Route{"RefreshUser", "GET", "/api/user/refresh", RefreshUser},
+		u.Route{"ValidateUser", "GET", "/api/user/{id:[0-9]+}/validate", ValidateUser},
+		u.Route{"ResetUser", "POST", "/api/user/{email}/reset", ResetUser},
 	}
 }
 
@@ -75,13 +73,6 @@ func ResetUser(w http.ResponseWriter, r *http.Request) {
 	user.LastPasswdGen = time.Now()
 	models.GetDB().Save(user)
 
-	var t u.JSON
-	t.New(map[string]interface{}{"User": user, "Link": fmt.Sprintf("%s/forgotPassword?id=%d&token=%s", os.Getenv("URL_SERVER"), user.IDUser, token)})
-	_, err = models.SendNotification(
-		u.Notifications[u.NotificationUserPasswordReset].Title,
-		u.Notifications[u.NotificationUserPasswordReset].Text,
-		*user, models.NotificationMail, 0, t)
-
 	u.Respond(w, u.Message(err == nil, "Password reset"))
 }
 
@@ -128,15 +119,6 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		user, _ := data.(*models.User)
 		user.ResetPasswordToken = token
 		return true
-	}, func(r *http.Request, data interface{}) bool {
-		user, _ := data.(*models.User)
-		var t u.JSON
-		t.New(map[string]interface{}{"User": user, "Link": fmt.Sprintf("%s/signUp?id=%d&token=%s", os.Getenv("URL_SERVER"), user.IDUser, token)})
-		models.SendNotification(
-			u.Notifications[u.NotificationUserCreation].Title,
-			u.Notifications[u.NotificationUserCreation].Text,
-			*user, models.NotificationMail, 0, t)
-		return true
 	})
 }
 
@@ -146,7 +128,7 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 		auth, ok := u.GetAuthenticatedToken(r)
 		user, valid := data.(*models.User)
 		user.Passwd = ""
-		return ok && (auth.UserRights.Has(u.CreateUser) || (valid && user.IDUser == auth.UserId))
+		return ok && (valid && user.IDUser == auth.UserId)
 	})
 }
 
@@ -166,14 +148,14 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 		token := mux.Vars(r)["token"]
 
 		return (token != "" && token == user.ResetPasswordToken) || //Modification par token (reset/validation du compte)
-			(ok && (auth.UserRights.Has(u.CreateUser) || (valid && auth.UserId == user.IDUser))) // Modification par token de session
+			(ok && (valid && auth.UserId == user.IDUser)) // Modification par token de session
 	})
 }
 
 //DeleteUser remove a user from db
 func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	models.GenericDelete(w, r, &models.User{}, func(r *http.Request, data interface{}) bool {
-		auth, ok := u.GetAuthenticatedToken(r)
-		return ok && (auth.UserRights.Has(u.DeleteUser))
+		_, ok := u.GetAuthenticatedToken(r)
+		return ok
 	})
 }

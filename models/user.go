@@ -147,16 +147,6 @@ func LoginUser(email, password string) map[string]interface{} {
 	}
 	//Worked! Logged In
 	user.Passwd = ""
-
-	//Create JWT token
-	//	tk := &utils.Token{
-	//		UserId:       user.IDUser,
-	//		UserRights:   user.Accesses,
-	//		CompanyRight: user.GetCompanyRights(),
-	//		TeamRight:    user.GetTeamRights(),
-	//	}
-	//	token := jwt.NewWithClaims(jwt.GetSigningMethod("HS256"), tk)
-	//	tokenString, _ := token.SignedString([]byte(os.Getenv("token_password")))
 	user.Token = user.GenToken() //Store the token in the response
 
 	resp := utils.Message(true, "Logged In")
