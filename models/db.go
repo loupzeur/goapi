@@ -89,7 +89,7 @@ func CrudRoutesSpecificURL(models Validation,
 }
 
 //CrudRoutes Generate default CRUD route for object
-func CrudRoutes(models Validation, new Validation,
+func CrudRoutes(models Validation,
 	freq func(r *http.Request, req *gorm.DB) *gorm.DB,
 	getfunc func(r *http.Request, data interface{}) bool,
 	crefunc func(r *http.Request, data interface{}) bool,

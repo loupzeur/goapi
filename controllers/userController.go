@@ -15,18 +15,46 @@ import (
 //RegisterUserRoute Return routes for this controller
 func RegisterUserRoute() u.Routes {
 	return u.Routes{
-		u.Route{"GetAllUser", "GET", "/api/user", GetAllUsers},
-		u.Route{"GetUser", "GET", "/api/user/{id:[0-9]+}", GetUser},
-		u.Route{"CreateUser", "POST", "/api/user", CreateUser},
-		u.Route{"UpdateUser", "PUT", "/api/user/{id:[0-9]+}", UpdateUser},
-		u.Route{"UpdateUserToken", "PUT", "/api/user/{id:[0-9]+}/token/{token}", UpdateUser},
-		u.Route{"DeleteUser", "DELETE", "/api/user/{id:[0-9]+}", DeleteUser},
 		//Secondary
 		u.Route{"AuthenticateUser", "POST", "/api/user/authenticate", AuthenticateUser},
 		u.Route{"RefreshUser", "GET", "/api/user/refresh", RefreshUser},
 		u.Route{"ValidateUser", "GET", "/api/user/{id:[0-9]+}/validate", ValidateUser},
 		u.Route{"ResetUser", "POST", "/api/user/{email}/reset", ResetUser},
-	}
+	}.Append(models.CrudRoutes(&models.User{},
+		DefaultQueryAll,
+		func(r *http.Request, data interface{}) bool {
+			auth, ok := u.GetAuthenticatedToken(r)
+			user, valid := data.(*models.User)
+			user.Passwd = ""
+			return ok && (valid && user.IDUser == auth.UserId)
+		},
+		func(r *http.Request, data interface{}) bool {
+			token := u.GetSha([]byte(time.Now().String()))
+			user, _ := data.(*models.User)
+			user.ResetPasswordToken = token
+			return true
+		},
+		func(r *http.Request, data interface{}, data2 interface{}) bool {
+			auth, ok := u.GetAuthenticatedToken(r)
+			user, valid := data.(*models.User)
+			updated, _ := data2.(*models.User)
+			if user.IDUser != updated.IDUser {
+				return false
+			}
+			if updated.Passwd != "" {
+				updated.NewPassword(updated.Passwd)
+			}
+
+			token := mux.Vars(r)["token"]
+
+			return (token != "" && token == user.ResetPasswordToken) || //Modification par token (reset/validation du compte)
+				(ok && (valid && auth.UserId == user.IDUser)) // Modification par token de session
+		},
+		func(r *http.Request, data interface{}) bool {
+			_, ok := u.GetAuthenticatedToken(r)
+			return ok
+		},
+	))
 }
 
 //ValidateUser validate a user
@@ -104,59 +132,4 @@ func RefreshUser(w http.ResponseWriter, r *http.Request) {
 	resp := u.Message(true, "Token Created")
 	resp["data"] = user.GenToken()
 	u.Respond(w, resp)
-}
-
-// ----------------Replace ?-------------------
-
-//GetAllUsers return all users
-func GetAllUsers(w http.ResponseWriter, r *http.Request) {
-	models.GenericGetQueryAll(w, r, &models.User{}, DefaultQueryAll)
-}
-
-//CreateUser creates an account for user
-func CreateUser(w http.ResponseWriter, r *http.Request) {
-	token := u.GetSha([]byte(time.Now().String()))
-	models.GenericCreate(w, r, &models.User{}, func(r *http.Request, data interface{}) bool {
-		user, _ := data.(*models.User)
-		user.ResetPasswordToken = token
-		return true
-	})
-}
-
-//GetUser return a user
-func GetUser(w http.ResponseWriter, r *http.Request) {
-	models.GenericGet(w, r, &models.User{}, func(r *http.Request, data interface{}) bool {
-		auth, ok := u.GetAuthenticatedToken(r)
-		user, valid := data.(*models.User)
-		user.Passwd = ""
-		return ok && (valid && user.IDUser == auth.UserId)
-	})
-}
-
-//UpdateUser update a user from db
-func UpdateUser(w http.ResponseWriter, r *http.Request) {
-	models.GenericUpdate(w, r, &models.User{}, func(r *http.Request, data interface{}, data2 interface{}) bool {
-		auth, ok := u.GetAuthenticatedToken(r)
-		user, valid := data.(*models.User)
-		updated, _ := data2.(*models.User)
-		if user.IDUser != updated.IDUser {
-			return false
-		}
-		if updated.Passwd != "" {
-			updated.NewPassword(updated.Passwd)
-		}
-
-		token := mux.Vars(r)["token"]
-
-		return (token != "" && token == user.ResetPasswordToken) || //Modification par token (reset/validation du compte)
-			(ok && (valid && auth.UserId == user.IDUser)) // Modification par token de session
-	})
-}
-
-//DeleteUser remove a user from db
-func DeleteUser(w http.ResponseWriter, r *http.Request) {
-	models.GenericDelete(w, r, &models.User{}, func(r *http.Request, data interface{}) bool {
-		_, ok := u.GetAuthenticatedToken(r)
-		return ok
-	})
 }
