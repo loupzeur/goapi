@@ -2,11 +2,12 @@ package controllers
 
 import (
 	"encoding/json"
-	"github.com/loupzeur/goapi/models"
-	u "github.com/loupzeur/goapi/utils"
 	"net/http"
 	"strconv"
 	"time"
+
+	"github.com/loupzeur/goapi/models"
+	u "github.com/loupzeur/goapi/utils"
 
 	"github.com/gorilla/mux"
 )
@@ -109,7 +110,7 @@ func RefreshUser(w http.ResponseWriter, r *http.Request) {
 
 //GetAllUsers return all users
 func GetAllUsers(w http.ResponseWriter, r *http.Request) {
-	models.GenericGetAll(w, r, &models.User{})
+	models.GenericGetQueryAll(w, r, &models.User{}, DefaultQueryAll)
 }
 
 //CreateUser creates an account for user
@@ -134,7 +135,7 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 
 //UpdateUser update a user from db
 func UpdateUser(w http.ResponseWriter, r *http.Request) {
-	models.GenericUpdate(w, r, &models.User{}, &models.User{}, func(r *http.Request, data interface{}, data2 interface{}) bool {
+	models.GenericUpdate(w, r, &models.User{}, func(r *http.Request, data interface{}, data2 interface{}) bool {
 		auth, ok := u.GetAuthenticatedToken(r)
 		user, valid := data.(*models.User)
 		updated, _ := data2.(*models.User)
