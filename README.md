@@ -6,19 +6,14 @@ All models return by that controller must implement models.Validation
 
 ### Default usage
 
-Define routes through models.CrudRoutes(
-
-    models models.Validation, 
-
-    freq func(r *http.Request, req *gorm.DB) *gorm.DB, 
-
-    getfunc func(r *http.Request, data interface{}) bool, 
-
-    crefunc func(r *http.Request, data interface{}) bool, 
-
-    updfunc func(r *http.Request, data interface{}, data2 interface{}) bool, 
-
-    delfunc func(r *http.Request, data interface{}) bool) u.Routes
+Define routes through 
+    models.CrudRoutes(
+        models models.Validation, 
+        freq func(r *http.Request, req *gorm.DB) *gorm.DB, 
+        getfunc func(r *http.Request, data interface{}) bool, 
+        crefunc func(r *http.Request, data interface{}) bool, 
+        updfunc func(r *http.Request, data interface{}, data2 interface{}) bool, 
+        delfunc func(r *http.Request, data interface{}) bool) u.Routes
 
 This will create 5 routes :
 
