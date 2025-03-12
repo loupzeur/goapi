@@ -7,7 +7,7 @@ import (
 )
 
 type Repository[T any] interface {
-	Create(context.Context, *T) error
+	Create(context.Context, *T, ...func(db *gorm.DB) *gorm.DB) error
 	Update(context.Context, *T, ...func(*gorm.DB) *gorm.DB) error
 	Delete(context.Context, *T, ...func(*gorm.DB) *gorm.DB) error
 	FindByID(context.Context, any, ...func(*gorm.DB) *gorm.DB) (*T, error)
@@ -21,9 +21,9 @@ type RepositoryGeneric[T any] struct {
 func NewRepository[T any](db *gorm.DB) *RepositoryGeneric[T] {
 	return &RepositoryGeneric[T]{db: db}
 }
-func (r *RepositoryGeneric[T]) Create(c context.Context, data *T) error {
+func (r *RepositoryGeneric[T]) Create(c context.Context, data *T, funcs ...func(db *gorm.DB) *gorm.DB) error {
 
-	return r.db.WithContext(c).Save(data).Error
+	return r.db.WithContext(c).Scopes(funcs...).Save(data).Error
 }
 func (r *RepositoryGeneric[T]) Update(c context.Context, data *T, funcs ...func(db *gorm.DB) *gorm.DB) error {
 
